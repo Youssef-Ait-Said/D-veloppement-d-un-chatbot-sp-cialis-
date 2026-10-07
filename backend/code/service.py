@@ -54,4 +54,4 @@ def chat(message: str, conversation_id: str | None) -> tuple[str, str]:
     return reply, conv_id
 
 def reset(conversation_id: str) -> None:
-    conversation_id.pop(conversation_id, None)
+    conversations.pop(conversation_id, None)

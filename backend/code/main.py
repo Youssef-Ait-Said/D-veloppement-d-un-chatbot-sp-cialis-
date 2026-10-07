@@ -1,5 +1,4 @@
-from fastapi import FASTAPI, FastAPI, HTTPException
-import fastapi
+from fastapi import FastAPI, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 import config
@@ -30,5 +29,5 @@ def chat(req: ChatRequest):
 
 @app.delete("/chat/{conversation_id}")
 def reset(conversation_id):
-    service.reste(conversation_id)
+    service.reset(conversation_id)
     return {"status" : "reset"}
