@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Trophy, RotateCcw, Send, Bot, Sparkles, TriangleAlert } from "lucide-react";
+import { RotateCcw, ArrowUp, ArrowUpRight, TriangleAlert } from "lucide-react";
 import Message from "./components/Message";
 import Limites from "./components/Limites";
 import Fond from "./components/Fond";
-import { envoyerMessage, reinitialiser } from "./api.js";
+import Logo from "./components/Logo";
+import { envoyerMessage, reinitialiser } from "./api";
 import "./App.css";
+
+const SUGGESTIONS = [
+  "Explique la règle du hors-jeu au football",
+  "Quel est le record du monde du 100 m ?",
+  "Comment bien s'échauffer avant une course ?",
+  "Quelle différence entre un marathon et un semi-marathon ?",
+];
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -18,9 +26,8 @@ function App() {
     fin.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  async function envoyer(e) {
-    e.preventDefault();
-    const message = texte.trim();
+  async function envoyerTexte(brut) {
+    const message = brut.trim();
     if (!message || loading) return;
 
     setErreur("");
@@ -39,6 +46,11 @@ function App() {
     }
   }
 
+  function soumettre(e) {
+    e.preventDefault();
+    envoyerTexte(texte);
+  }
+
   async function nouvelleConversation() {
     if (conversationId) await reinitialiser(conversationId);
     setMessages([]);
@@ -50,67 +62,88 @@ function App() {
   return (
     <>
       <Fond />
-      <div className="app">
-        <header className="header">
-          <div className="logo">
-            <Trophy size={26} />
+      <div className="shell">
+        <aside className="side">
+          <div className="marque">
+            <Logo size={52} />
+            <span className="etiquette">Assistant sportif</span>
           </div>
-          <div className="titre">
-            <h1>SportBot</h1>
-            <p>Règles, compétitions, records, entraînement.</p>
+          <h1>
+            Sport<span>Bot</span>
+          </h1>
+          <p className="description">
+            Règles, compétitions, records et conseils généraux d'entraînement.
+            Des réponses claires, sans promesses médicales.
+          </p>
+          <Limites />
+        </aside>
+
+        <section className="panel">
+          <div className="barre">
+            <span>Conversation</span>
+            <button type="button" className="btn-ghost" onClick={nouvelleConversation}>
+              <RotateCcw size={15} />
+              <span>Nouvelle conversation</span>
+            </button>
           </div>
-          <button className="btn-secondaire" onClick={nouvelleConversation}>
-            <RotateCcw size={16} />
-            <span>Nouvelle conversation</span>
-          </button>
-        </header>
 
-        <Limites />
+          <main className="chat">
+            <div className="fil">
+              {messages.length === 0 && (
+                <div className="accueil">
+                  <h2>Que veux-tu savoir ?</h2>
+                  <p>Choisis une question ou écris la tienne.</p>
+                  <div className="suggestions">
+                    {SUGGESTIONS.map((s) => (
+                      <button key={s} type="button" disabled={loading} onClick={() => envoyerTexte(s)}>
+                        <span>{s}</span>
+                        <ArrowUpRight size={16} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-        <main className="chat">
-          {messages.length === 0 && (
-            <div className="vide">
-              <Sparkles size={34} />
-              <p>Pose ta première question sur le sport</p>
+              {messages.map((m, i) => (
+                <Message key={i} role={m.role} texte={m.texte} />
+              ))}
+
+              {loading && (
+                <div className="message bot">
+                  <div className="avatar">
+                    <Logo size={34} />
+                  </div>
+                  <div className="bulle typing">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </div>
+              )}
+              <div ref={fin} />
             </div>
-          )}
+          </main>
 
-          {messages.map((m, i) => (
-            <Message key={i} role={m.role} texte={m.texte} />
-          ))}
-
-          {loading && (
-            <div className="message bot">
-              <div className="avatar">
-                <Bot size={18} />
+          <form className="saisie" onSubmit={soumettre}>
+            {erreur && (
+              <div className="erreur">
+                <TriangleAlert size={18} />
+                <span>{erreur}</span>
               </div>
-              <div className="bulle typing">
-                <span />
-                <span />
-                <span />
-              </div>
+            )}
+            <div className="champ">
+              <input
+                value={texte}
+                onChange={(e) => setTexte(e.target.value)}
+                placeholder="Écris ta question..."
+              />
+              <button type="submit" disabled={loading || !texte.trim()} aria-label="Envoyer">
+                <ArrowUp size={20} />
+              </button>
             </div>
-          )}
-          <div ref={fin} />
-        </main>
-
-        {erreur && (
-          <div className="erreur">
-            <TriangleAlert size={18} />
-            <span>{erreur}</span>
-          </div>
-        )}
-
-        <form className="saisie" onSubmit={envoyer}>
-          <input
-            value={texte}
-            onChange={(e) => setTexte(e.target.value)}
-            placeholder="Écris ta question..."
-          />
-          <button type="submit" disabled={loading || !texte.trim()} aria-label="Envoyer">
-            <Send size={20} />
-          </button>
-        </form>
+            <p className="note">SportBot peut se tromper. Vérifie les informations importantes.</p>
+          </form>
+        </section>
       </div>
     </>
   );

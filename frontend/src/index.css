@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap");
 
 * {
   box-sizing: border-box;
@@ -6,9 +6,25 @@
   padding: 0;
 }
 
+:root {
+  --bg: #0c0d0f;
+  --surface: #141518;
+  --surface-2: #1b1c20;
+  --line: #26272c;
+  --text: #ecebe8;
+  --muted: #8d8f96;
+  --accent: #c8663f;
+  --titre: "Barlow Condensed", "Arial Narrow", sans-serif;
+}
+
 body {
   font-family: "Inter", system-ui, sans-serif;
-  background: #060a18;
-  color: #e5e7f0;
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font-family: inherit;
 }
